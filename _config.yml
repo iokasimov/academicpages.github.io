@@ -74,7 +74,7 @@ analytics:
 author:
   name             : "Murat Kasimov"
   avatar           : "profile.jpg"
-  bio              : "I'm software engineer who solves real world problems, but I'm trying to use formal methods to build safe and elegant programs as much as possible."
+  bio              : "I'm a software engineer who solves real-world problems by using formal methods to build safe and elegant programs as much as possible."
   location         : "Rostov-on-Don, Russia"
   employer         : "Serokell OÜ"
   email            : "iokasimov.m@gmail.com"
