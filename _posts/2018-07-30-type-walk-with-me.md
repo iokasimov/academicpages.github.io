@@ -63,18 +63,7 @@ instance ToJSON (User :&: Followers) where
 ```
 
 But then the frontend guy appears again saying "Man, I need a new endpoint with user, followers and view counter, as fast as possible, please".
-Okay, I need a product with three multipliers now, but I don't want to create yet another type that has one field more than previous one.
-We can divide our type-level product type into the constructors: first, `:@:` creates a product from two multipliers and second, `:#:` adds a multiplier to the product. Let's encode them right that:
-
-```haskell
-{-# language GADTs #-}
-
-data (:&:) a b where
-     (:@:) :: a -> b -> a :&: b
-     (:#:) :: a :&: b -> c -> (a :&: b) :&: c
-```
-
-With this inductive definition you can include as many multipliers in your product type as you want! There is only one rule: start with `:@:` and continue with `:#:`.
+And you reply: "No, problem, here you go!"
 
 ```haskell
 {-# language FlexibleInstances #-}
@@ -82,7 +71,7 @@ With this inductive definition you can include as many multipliers in your produ
 type Counter = Int
 
 instance ToJSON (User :&: Followers :&: Counter) where
-   toJSON (user :@: followers :#: counter) = object
+   toJSON (user :&: followers :&: counter) = object
       ["user" .= toJSON user, "followers" .= toJSON followers, "counter" .= toJSON counter]
 ```
 
