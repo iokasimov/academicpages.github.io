@@ -8,9 +8,6 @@ tags:
   - with
 ---
 
-Introduction and motivation
---------------------------------------------------------------------------------
-
 I lost count of how many times I've seen types/functions/families and another first-class abstractions that shouldn't exist if we want to use more universal constructions. A little bit of theory can reduce and beautify our production code, and now I will try to demonstrate that.
 
 Problem description
