@@ -1,7 +1,7 @@
 ---
 title: 'Well-typed paths: revisited'
 date: 2018-09-26
-permalink: /posts/2018/09/_
+permalink: /posts/2018/09/well-typed-paths-revisited
 tags:
   - haskell
   - path
