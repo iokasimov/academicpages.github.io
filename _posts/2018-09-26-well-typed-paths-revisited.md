@@ -83,7 +83,7 @@ mkdir :: String -> IO (Path Absolute Directory)
 mkdir prefix = create $ part "Temporary" <^> part prefix
 
 filepath :: String -> String -> IO (Path Absolute File)
-filepath filename prefix = (\dir -> dir <^> part filename) <$> mkdir prefix
+filepath filename prefix = (\dir -> dir </> part filename) <$> mkdir prefix
 ```
 
 In this example, `part` function is like a `pure` for `Path` but it takes strings only. We create a directory and then construct a full path to the file.
