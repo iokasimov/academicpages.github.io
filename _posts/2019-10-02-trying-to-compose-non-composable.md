@@ -19,7 +19,7 @@ type (~>) t u = forall a . t a -> u a -- | Natural transformation
 In Haskell we get used to work with effects as functors, whose objects (arguments) are some expressions, that we are interesting in  some particular moment.
 When do we see type annotation like `Maybe a`, we abstract from existing of this `a`, focusing all our attention on this `a` as it's always exist. The same story with `List a` - multiple `a` values, `State s a` - `a`, which depends from some current state, `Either e a` - some `a` that can throw an error `e`. For example: `List :. Maybe := a` - such expression is easy to imagine, this is a list of value, which existing is unknown.
 
-The most obvious way to cover some expression with more than one effect is just wrap one in another - this is just a functor composition. Effects in usual compositions have no way affect each other (if you don't use `Traversable` methods). To merge several effects into one we use transformers.
+The most obvious way to cover some expression with more than one effect is just wrap one into another - this is just a functors composition. Effects in usual compositions have no way to affect each other (if you don't use `Traversable` methods). To merge several effects into one we use transformers.
 
 So, what are the pros and cons of these both methods?
 
@@ -50,14 +50,14 @@ Maybe: u (Maybe a) ===> u :. Maybe := a ===> u :. t := a (t ~ Maybe)
 Either: u (Either e a) ===> u :. Either e := a ===> u :. t := a (t ~ Either e)
 ```
 
-Some effects are pretty complicated and can be defineed via composition of more simple effects:
+Some effects are pretty complicated and can be defined via composition of more simpler effects:
 
 ```haskell
 State: s -> m (a, s) ===> (->) s :. (,) s := a ==> t :. u :. t’ := a
 newtype State s a = State ((->) s :. (,) s := a)
 ```
 
-If we take a closer look again on first three examples, we can consider patterns: in Reader, determined effect wraps undetermined; but in case of Either and Maybe we do the opposite thing - undetermined effects wraps determined. In case of State we put undetermined effect between two more simple determined effects.
+If we take a closer look again on first three examples, we can consider some patterns: in `Reader`, determined effect wraps undetermined one; but in case of `Either` and `Maybe` we do the opposite thing - undetermined effects wrap determined. In case of `State` we put undetermined effect between two determined effects.
 
 Let's try to express those patterns in types:
 
@@ -66,8 +66,7 @@ newtype TU t u a = TU (t :. u := a)
 newtype UT t u a = UT (u :. t := a)
 newtype TUT t u t' a = TUT (t :. u :. t' := a)
 ```
-
-We just defined joint schemes - they are just functor compositions in wrappers, that can point positions of determined and undetermined effects. In the essence, methods for transformers, which names start from `run`, just unwrap these wrappers and return functor composition. We can generalise this operation:
+We just defined joint schemes - they are just functors compositions in wrappers, that can point positions of determined and undetermined effects. In the essence, methods of transformers, which names start from `run` just unwrap these wrappers and return functors composition. We can generalise this operation:
 
 ```haskell
 class Composition t where
@@ -90,7 +89,7 @@ instance Composition (TUT t u t') where
 	run (TUT x) = x
 ```
 
-But what about transformers? We need to define new typeclass again. Instances of this typeclass match some joint schemes to concrete type, define embed methods to lift undetermined effect up to transformer layer and build to make determined effect a transformer:
+But what about transformers? We need to define new typeclass again. Instances of this typeclass match some joint schemes to concrete type, define `embed` methods to lift undetermined effect up to transformer layer and `build` to make determined effect a transformer:
 
 ```haskell
 class Composition t => Transformer t where
@@ -101,7 +100,7 @@ class Composition t => Transformer t where
 type (:>) t u a = Transformer t => Schema t u a
 ```
 
-We need only define instances, let's start from Maybe and Either:
+We need only define instances, let's start from `Maybe` and `Either`:
 
 ```haskell
 instance Transformer Maybe where
@@ -115,7 +114,7 @@ instance Transformer (Either e) where
 	build x = UT . pure $ x
 ```
 
-We will create our own type for Reader because we don't have it in base. And we need to define Composition instance for Reader just because it can be expressed with more simple effect (just an function arrow).
+We will create our own type for `Reader` because we don't have it in base. And we need to define `Composition` instance for `Reader` just because it can be expressed via more simpler effect (just a function arrow).
 
 ```haskell
 newtype Reader e a = Reader (e -> a)
@@ -130,7 +129,7 @@ instance Transformer (Reader e) where
 	build x = TU $ pure <$> run x
 ```
 
-Let's do the same with State:
+Let's do the same with `State`:
 
 ```haskell
 newtype State s a = State ((->) s :. (,) s := a)
@@ -145,7 +144,7 @@ instance Transformer (State s) where
 	build x = TUT $ pure <$> run x
 ```
 
-Let's try our approach on the real world tatks - we'll write a programm that can test correctnes of various styles of brackets in a source code. First, we need to define types for brackets: they can be opened and closed; they can have different styles.
+Let's try our approach on the real world tasks - we'll write a program that can test correctness of location of various styles of brackets in a source code. First, we need to define types for brackets: they can be opened and closed; they can have different styles.
 
 ```haskell
 data Shape = Opened | Closed
@@ -168,7 +167,7 @@ data Stumble
 	| Mismatch (Int, Style) (Int, Style)  -- Стиль закрытой скобки не соответствует открытой
 ```
 
-What are the effects our program needs? We need to store a stack of open brackets' styles, that need to be checked later and we should stop all computation on first error. Let's build a transformer:
+What are the effects our program needs? We need to store a stack of styles of open brackets, that need to be checked later and we should stop all computation on first error. Let's build a transformer:
 
 ```haskell
 State [(Int, Style)] :> Either Stumble := ()
@@ -190,7 +189,7 @@ proceed :: (Int, Symbol) -> State [(Int, Style)] :> Either Stumble := ()
 proceed (_, Nevermind) = pure ()
 proceed (n, Bracket style Opened) = build . modify . (:) $ (n, style)
 -- любую закрытую скобку сравниваем с последней запомнившейся открытой
-procceed (n, Bracket closed Closed) = build get >>= \case
+proceed (n, Bracket closed Closed) = build get >>= \case
 	[]-> embed $ Left . Deadend $ (n, closed)
 	((m, opened) : ss) -> if closed /= opened
 		then embed . Left $ Mismatch (m, opened) (n, closed)
