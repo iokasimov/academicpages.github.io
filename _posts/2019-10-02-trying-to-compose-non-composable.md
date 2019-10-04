@@ -16,25 +16,25 @@ type (:.) t u a = t (u a) -- | Composition of functors
 type (~>) t u = forall a . t a -> u a -- | Natural transformation
 ```
 
-In Haskell we get used to work with effects as functors, whose objects (arguments) are some expressions, that we are interesting in  some particular moment.
-When do we see type annotation like `Maybe a`, we abstract from existing of this `a`, focusing all our attention on this `a` as it's always exist. The same story with `List a` - multiple `a` values, `State s a` - `a`, which depends from some current state, `Either e a` - some `a` that can throw an error `e`. For example: `List :. Maybe := a` - such expression is easy to imagine, this is a list of value, which existing is unknown.
+In Haskell we get used to work with effects as functors, whose objects (arguments) are some expressions, wich we are interesting in some particular moment.
+When we see type annotation like `Maybe a`, we abstract from existing of this `a`, focusing all our attention on this `a` like it always exists. The same story with `List a` - multiple `a` values, `State s a` - `a`, which depends from some current state, `Either e a` - some `a` that can throw an error `e`. For example: `List :. Maybe := a` - such expression is easy to imagine, this is a list of values, whose existing is unknown.
 
-The most obvious way to cover some expression with more than one effect is just wrap one into another - this is just a functors composition. Effects in usual compositions have no way to affect each other (if you don't use `Traversable` methods). To merge several effects into one we use transformers.
+The most obvious way to cover some expression with more than one effect is to wrap one into another - this is a functors composition. Effects in usual compositions have no way to affect each other (if you don't use `Traversable` methods). To merge several effects into one we use transformers.
 
 So, what are the pros and cons of these both methods?
 
 Compositions:
 * There is no need in additional datatypes
 * There is no generalised method for merging effects
-* Everything is composable, until you won't need monadic behaviour
+* Everything is composable, as long as you don't need monadic behaviour
 
 Transformers:
 * They let you merge several effects into one
 * With `lift` you can do computations on any level of monad transformer stack
-* But it needs to have separated datatype (usually, newtype) (like `ReaderT`, `StateT`, `ExceptT`, `MaybeT`)
+* But it needs to have additional datatype (usually, newtype) (like `ReaderT`, `StateT`, `ExceptT`, `MaybeT`)
 * You cannot consider effects alone, but there are special functions for that (like `mapReaderT`, `mapStateT`, `mapExceptT`, `mapMaybeT`)
 
-Transformers differs from composition that they have this "joint machinery". If you have some composition, you can convert it to transformer and vice versa - for that we need joint schemes. If we take a closer look on types for monad transformers from Kmett's transformers library, we can see some patterns:
+Transformers differ from compositions that they have this "joint machinery". If you have some composition, you can convert it to transformer and vice versa - we need joint schemes for that. If we take a closer look on types for monad transformers from Kmett's transformers library, we can see some patterns:
 ```haskell
 newtype ReaderT r m a = ReaderT { runReaderT :: r -> m a }
 newtype MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
@@ -66,7 +66,7 @@ newtype TU t u a = TU (t :. u := a)
 newtype UT t u a = UT (u :. t := a)
 newtype TUT t u t' a = TUT (t :. u :. t' := a)
 ```
-We just defined joint schemes - they are just functors compositions in wrappers, that can point positions of determined and undetermined effects. In the essence, methods of transformers, which names start from `run` just unwrap these wrappers and return functors composition. We can generalise this operation:
+We just defined joint schemes - they are functors compositions in wrappers, that can point on the positions of determined and undetermined effects. In the essence, methods of transformers, which names start with `run` unwrap these wrappers and return functors composition. We can generalise this operation:
 
 ```haskell
 class Composition t where
@@ -74,12 +74,13 @@ class Composition t where
 	run :: t a -> Primary t a
 ```
 
-Now we have generalised way to run these schemes:
+Now we have a generalised way to run these schemes:
 
 ```haskell
 instance Composition (TU t u) where
-type Primary (TU t u) a = t :. u := a
+	type Primary (TU t u) a = t :. u := a
 	run (TU x) = x
+
 instance Composition (UT t u) where
 	type Primary (UT t u) a = u :. t := a
 	run (UT x) = x
@@ -89,7 +90,10 @@ instance Composition (TUT t u t') where
 	run (TUT x) = x
 ```
 
-But what about transformers? We need to define new typeclass again. Instances of this typeclass match some joint schemes to concrete type, define `embed` methods to lift undetermined effect up to transformer layer and `build` to make determined effect a transformer:
+But what about transformers? We need to define new typeclass again. It consist of:
+* Some corresponding joint scheme that uniquely defined for this type
+* `embed` method to lift undetermined effect up to transformer layer
+* `build` method to make determined effect a transformer
 
 ```haskell
 class Composition t => Transformer t where
@@ -100,7 +104,7 @@ class Composition t => Transformer t where
 type (:>) t u a = Transformer t => Schema t u a
 ```
 
-We need only define instances, let's start from `Maybe` and `Either`:
+All we need is to define instances, let's start with `Maybe` and `Either`:
 
 ```haskell
 instance Transformer Maybe where
@@ -114,7 +118,7 @@ instance Transformer (Either e) where
 	build x = UT . pure $ x
 ```
 
-We will create our own type for `Reader` because we don't have it in base. And we need to define `Composition` instance for `Reader` just because it can be expressed via more simpler effect (just a function arrow).
+We will create our own type for `Reader` because we don't have it in base. And we need to define `Composition` instance for `Reader` just because it can be expressed via more simpler effect (a function arrow).
 
 ```haskell
 newtype Reader e a = Reader (e -> a)
@@ -152,7 +156,7 @@ data Shape = Opened | Closed
 data Style = Round | Square | Angle | Curly
 ```
 
-Our program is not interested in different symbols:
+Our program is indifferent to other symbols:
 
 ```haskell
 data Symbol = Nevermind | Bracket Style Shape
@@ -167,13 +171,13 @@ data Stumble
 	| Mismatch (Int, Style) (Int, Style)  -- Стиль закрытой скобки не соответствует открытой
 ```
 
-What are the effects our program needs? We need to store a stack of styles of open brackets, that need to be checked later and we should stop all computation on first error. Let's build a transformer:
+What are the effects our program needs? We have to store a stack of styles of open brackets which should be checked later and we should stop all computation on first error. Let's build a transformer:
 
 ```haskell
 State [(Int, Style)] :> Either Stumble := ()
 ```
 
-This algorithm is easy: we traverse the structure of indexed brackets, if at the end we didn't stumble on error and we have some brackets left in the stack - it means that the opened bracket doesn't have closed one.
+This algorithm is easy: we traverse the structure of indexed brackets, if we haven't stumbled on error and we have some brackets left in the stack - it means that the opened bracket doesn't have the closed one.
 
 ```haskell
 checking :: Traversable t => t (Int, Symbol) -> Either Stumble ()
@@ -182,7 +186,7 @@ checking struct = run (traverse proceed struct) [] >>= \case
 	([], _) -> Right ()
 ```
 
-We just put to the stack any opened bracket, any closed we should match with the last opened one:
+We put to the stack each opened bracket, and any closed one we match with the last opened one:
 
 ```haskell
 proceed :: (Int, Symbol) -> State [(Int, Style)] :> Either Stumble := ()
