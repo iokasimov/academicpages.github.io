@@ -168,7 +168,7 @@ Also, we're going to define what types of errors our program can stumble on:
 data Stumble
 	= Deadend (Int, Style) -- Closed bracket without opened one
 	| Logjam (Int, Style)  -- Opened bracket without closed one
-	| Mismatch (Int, Style) (Int, Style)  -- Стиль закрытой скобки не соответствует открытой
+	| Mismatch (Int, Style) (Int, Style)  -- The closed bracket's style doesn't match to the opened one
 ```
 
 What are the effects our program needs? We have to store a stack of styles of open brackets which should be checked later and we should stop all computation on first error. Let's build a transformer:
@@ -192,7 +192,6 @@ We put to the stack each opened bracket, and any closed one we match with the la
 proceed :: (Int, Symbol) -> State [(Int, Style)] :> Either Stumble := ()
 proceed (_, Nevermind) = pure ()
 proceed (n, Bracket style Opened) = build . modify . (:) $ (n, style)
--- любую закрытую скобку сравниваем с последней запомнившейся открытой
 proceed (n, Bracket closed Closed) = build get >>= \case
 	[]-> embed $ Left . Deadend $ (n, closed)
 	((m, opened) : ss) -> if closed /= opened
@@ -200,4 +199,8 @@ proceed (n, Bracket closed Closed) = build get >>= \case
 		else build $ put ss
 ```
 
-If we have some functors composition we can convert it to transformer and vice versa. Suddenly, that trick doesn't work with mother of monads - continuations. Just because we cannot redefine it via functors composition.
+If we have some functors composition we can convert it to transformer and vice versa. Suddenly, that trick doesn't work with the mother of monads - continuations. Just because we cannot redefine it via functors composition.
+
+There are some this post related links:
+
+[Library on Github](https://github.com/iokasimov/joint) | [Hackage documentation](http://hackage.haskell.org/package/joint) | [Examples with brackets](https://gist.github.com/iokasimov/e149804f8bf4cb807a1ff6c2ae6a383a)
