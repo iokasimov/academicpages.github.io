@@ -1,7 +1,7 @@
 ---
 title: 'Trying to compose non-composable: joint schemes'
-date: 2019-10-02
-permalink: /posts/2019/10/joint
+date: 2019-11-02
+permalink: /posts/2019/11/joint
 tags:
   - haskell
   - effect
@@ -9,19 +9,54 @@ tags:
   - transformer
 ---
 
-Before we continue, let's define some type annotations that will be used in this article:
+Introduction
+--------------------------------------------------------------------------------
+
+In this blog post I would like to show you an experimental method for dealing with multiple effects in Haskell that I have called `joint schemes`. What is the `joint schema`? It's a `schema` that describes how do some specific effect should be composed with any other. I never seen something similar before, so I decided to dig into the capabilities of this approach.
+
+In Haskell we get used to work with effects as functors, whose objects (arguments) are some expressions, which we are interesting at some particular moment.
+
+Definitions
+--------------------------------------------------------------------------------
+
+Before we continue, let's define some type annotations that will be used in this article, that will be very helpful when you're starting thinking in terms of compositions over objects.
+
+Let `t` be determined, some specific effect and let `u` be undetermined, just any other effect:
+
+Functor's object:
 ```haskell
-type (:=) t a = t a -- | Functor's object
-type (:.) t u a = t (u a) -- | Composition of functors
-type (~>) t u = forall a . t a -> u a -- | Natural transformation
+type (:=) t a = t a
+```
+If we have a simple one `Maybe` effect over some value it looks like: :
+```haskell
+Maybe := a
 ```
 
-In Haskell we get used to work with effects as functors, whose objects (arguments) are some expressions, wich we are interesting in some particular moment.
+Composition of functors
+```haskell
+type (:.) t u a = t (u a)
+```
+
+Let's say, we want to add new `List` effect over existing one:
+```haskell
+List :. Maybe := a
+```
+
+Natural transformation
+```haskell
+type (~>) t u = forall a . t a -> u a
+```
+Function signature for safely accessing a list item would look like this:
+```haskell
+List ~> Maybe
+```
+
 When we see type annotation like `Maybe a`, we abstract from existing of this `a`, focusing all our attention on this `a` like it always exists. The same story with `List a` - multiple `a` values, `State s a` - `a`, which depends from some current state, `Either e a` - some `a` that can throw an error `e`. For example: `List :. Maybe := a` - such expression is easy to imagine, this is a list of values, whose existing is unknown.
 
-The most obvious way to cover some expression with more than one effect is to wrap one into another - this is a functors composition. Effects in usual compositions have no way to affect each other (if you don't use `Traversable` methods). To merge several effects into one we use transformers.
+Compositions and transformers
+--------------------------------------------------------------------------------
 
-So, what are the pros and cons of these both methods?
+In most real world programs we use many effect at the same time and the effect must then be composed in some way. There are mainly two different ways to do this: compositions and transformers. So, what are the pros and cons of these both methods?
 
 Compositions:
 * There is no need in additional datatypes
@@ -34,7 +69,13 @@ Transformers:
 * But it needs to have additional datatype (usually, newtype) (like `ReaderT`, `StateT`, `ExceptT`, `MaybeT`)
 * You cannot consider effects alone, but there are special functions for that (like `mapReaderT`, `mapStateT`, `mapExceptT`, `mapMaybeT`)
 
-Transformers differ from compositions that they have this "joint machinery". If you have some composition, you can convert it to transformer and vice versa - we need joint schemes for that. If we take a closer look on types for monad transformers from Kmett's transformers library, we can see some patterns:
+Transformers differ from compositions that they propagate effects on each other. For example, if you have an error on `Either`-level in `StateT _ (Either _) a` - all computation should stop. If you have just a composition `State _ :. Either _ := a` - in this case (just a functors composition) an error will not affect on the whole computation.
+
+Decomposing familiar effects
+--------------------------------------------------------------------------------
+
+If we take a closer look on types for monad transformers from Kmett's `transformers` library, we can see some patterns:
+
 ```haskell
 newtype ReaderT r m a = ReaderT { runReaderT :: r -> m a }
 newtype MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
@@ -42,12 +83,12 @@ newtype ExceptT e m a = ExceptT { runExceptT :: m (Either e a)) }
 newtype StateT s m a = StateT { runStateT :: s -> m (a,s) }
 ```
 
-Transformers describe special case of how two effects - determined and undetermined should be juncted. We will try to rewrite type definitions above in terms of determined and undetermined effects:
+Transformers describe special case of how two effects - determined and undetermined should be composed. We will try to rewrite type definitions above in terms of determined and undetermined effects:
 
 ```haskell
-Reader: r -> u a ===> (->) r :. u := a ===> t :. u := a (t ~ (->) r)
-Maybe: u (Maybe a) ===> u :. Maybe := a ===> u :. t := a (t ~ Maybe)
-Either: u (Either e a) ===> u :. Either e := a ===> u :. t := a (t ~ Either e)
+Reader: r -> u a ===> (->) r :. u := a ===> t :. u := a -- determined - t ~ (->) r, undetermined - u
+Maybe: u (Maybe a) ===> u :. Maybe := a ===> u :. t := a -- determined - t ~ Maybe, undetermined - u
+Either: u (Either e a) ===> u :. Either e := a ===> u :. t := a -- determined - t ~ Either e, undetermined - u
 ```
 
 Some effects are pretty complicated and can be defined via composition of more simpler effects:
@@ -59,6 +100,9 @@ newtype State s a = State ((->) s :. (,) s := a)
 
 If we take a closer look again on first three examples, we can consider some patterns: in `Reader`, determined effect wraps undetermined one; but in case of `Either` and `Maybe` we do the opposite thing - undetermined effects wrap determined. In case of `State` we put undetermined effect between two determined effects.
 
+Fit familiar effects in joint schemes
+--------------------------------------------------------------------------------
+
 Let's try to express those patterns in types:
 
 ```haskell
@@ -66,7 +110,7 @@ newtype TU t u a = TU (t :. u := a)
 newtype UT t u a = UT (u :. t := a)
 newtype TUT t u t' a = TUT (t :. u :. t' := a)
 ```
-We just defined joint schemes - they are functors compositions in wrappers, that can point on the positions of determined and undetermined effects. In the essence, methods of transformers, which names start with `run` unwrap these wrappers and return functors composition. We can generalise this operation:
+We just defined `joint schemes` - they are functors compositions in wrappers, that can point on the positions of determined and undetermined effects. In the essence, methods of transformers, which names start with `run` unwrap these wrappers and return functors composition. We can generalise this operation:
 
 ```haskell
 class Composition t where
@@ -148,6 +192,9 @@ instance Transformer (State s) where
 	build x = TUT $ pure <$> run x
 ```
 
+Simple example
+--------------------------------------------------------------------------------
+
 Let's try our approach on the real world tasks - we'll write a program that can test correctness of location of various styles of brackets in a source code. First, we need to define types for brackets: they can be opened and closed; they can have different styles.
 
 ```haskell
@@ -199,8 +246,11 @@ proceed (n, Bracket closed Closed) = build get >>= \case
 		else build $ put ss
 ```
 
-If we have some functors composition we can convert it to transformer and vice versa. Suddenly, that trick doesn't work with the mother of monads - continuations. Just because we cannot redefine it via functors composition.
+Conclusion
+--------------------------------------------------------------------------------
 
-There are some this post related links:
+So, what do we have? According to this approach even very complicated effects can be decomposed on composition of simpler ones (that's what for `Composition` typeclass) and we can inject any other effects into such schemes so they are working as transformers pretty well.
 
-[Library on Github](https://github.com/iokasimov/joint) | [Hackage documentation](http://hackage.haskell.org/package/joint) | [Examples with brackets](https://gist.github.com/iokasimov/e149804f8bf4cb807a1ff6c2ae6a383a)
+Suddenly, that trick doesn't work with the mother of monads - continuations. Just because we cannot redefine it via functors composition.
+
+I've created a tiny [library](https://github.com/iokasimov/joint) with examples, if you have a bundle of effects in your pet-projects you can try it. And if you have some troubles with it - email me. Also, there is full [example's code with brackets](https://gist.github.com/iokasimov/e149804f8bf4cb807a1ff6c2ae6a383a).
