@@ -253,4 +253,6 @@ So, what do we have? According to this approach even very complicated effects ca
 
 Suddenly, that trick doesn't work with the mother of monads - continuations. Just because we cannot redefine it via functors composition.
 
-I've created a tiny [library](https://github.com/iokasimov/joint) with examples, if you have a bundle of effects in your pet-projects you can try it. And if you have some troubles with it - email me. Also, there is full [example's code with brackets](https://gist.github.com/iokasimov/e149804f8bf4cb807a1ff6c2ae6a383a).
+I've created a tiny [library](https://github.com/iokasimov/joint) with examples, if you have a bundle of effects in your pet-projects - you can try it. And if you have some troubles with it - email me. Also, there is full [example's code with brackets](https://gist.github.com/iokasimov/e149804f8bf4cb807a1ff6c2ae6a383a).
+
+I must say many thanks to [Joel Wikstrom](https://twitter.com/WikstromJoel) who had helped me a lot - his notes and advices made this blog post happen.
