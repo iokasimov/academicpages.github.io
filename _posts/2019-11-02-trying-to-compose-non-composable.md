@@ -12,9 +12,9 @@ tags:
 Introduction
 --------------------------------------------------------------------------------
 
-In this blog post I would like to show you an experimental method for dealing with multiple effects in Haskell that I have called `joint schemes`. What is the `joint schema`? It's a `schema` that describes how do some specific effect should be composed with any other. I never seen something similar before, so I decided to dig into the capabilities of this approach.
+In this blog post I would like to show you an experimental method for dealing with multiple effects in Haskell that I have called `joint schemes`. What is the `joint schema`? It's a `schema` that describes how some specific effect should be composed with other effects. I never seen something similar before, so I decided to dig into the capabilities of this approach.
 
-In Haskell we get used to work with effects as functors, whose objects (arguments) are some expressions, which we are interesting at some particular moment.
+In Haskell we get used to work with effects as functors, whose objects (arguments) are some expressions, which we are interested at some particular moment.
 
 Definitions
 --------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ When we see type annotation like `Maybe a`, we abstract from existing of this `a
 Compositions and transformers
 --------------------------------------------------------------------------------
 
-In most real world programs we use many effect at the same time and the effect must then be composed in some way. There are mainly two different ways to do this: compositions and transformers. So, what are the pros and cons of these both methods?
+In most real world programs we use many effects at the same time and the effect must then be composed in some way. There are mainly two different ways to do this: compositions and transformers. So, what are the pros and cons of these both methods?
 
 Compositions:
 * There is no need in additional datatypes
@@ -69,7 +69,7 @@ Transformers:
 * But it needs to have additional datatype (usually, newtype) (like `ReaderT`, `StateT`, `ExceptT`, `MaybeT`)
 * You cannot consider effects alone, but there are special functions for that (like `mapReaderT`, `mapStateT`, `mapExceptT`, `mapMaybeT`)
 
-Transformers differ from compositions that they propagate effects on each other. For example, if you have an error on `Either`-level in `StateT _ (Either _) a` - all computation should stop. If you have just a composition `State _ :. Either _ := a` - in this case (just a functors composition) an error will not affect on the whole computation.
+Transformers differ from compositions that they propagate effects on each other. For example, if you have an error on `Either`-level in `StateT _ (Either _) a` - all computation should stop. If you have just a composition `State _ :. Either _ := a` - in this case (just a functors composition) an error will not affect the whole computation.
 
 Decomposing familiar effects
 --------------------------------------------------------------------------------
@@ -98,7 +98,7 @@ State: s -> m (a, s) ===> (->) s :. (,) s := a ==> t :. u :. t’ := a
 newtype State s a = State ((->) s :. (,) s := a)
 ```
 
-If we take a closer look again on first three examples, we can consider some patterns: in `Reader`, determined effect wraps undetermined one; but in case of `Either` and `Maybe` we do the opposite thing - undetermined effects wrap determined. In case of `State` we put undetermined effect between two determined effects.
+If we take a closer look again on first three examples, we can consider some patterns: in `Reader`, determined effect wraps undetermined one; but in the case of `Either` and `Maybe` we do the opposite thing - undetermined effects wrap determined. In case of `State` we put undetermined effect between two determined effects.
 
 Fit familiar effects in joint schemes
 --------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ instance Composition (TUT t u t') where
 	run (TUT x) = x
 ```
 
-But what about transformers? We need to define new typeclass again. It consist of:
+But what about transformers? We need to define new typeclass again. It consists of:
 * Some corresponding joint scheme that uniquely defined for this type
 * `embed` method to lift undetermined effect up to transformer layer
 * `build` method to make determined effect a transformer
@@ -195,7 +195,7 @@ instance Transformer (State s) where
 Simple example
 --------------------------------------------------------------------------------
 
-Let's try our approach on the real world tasks - we'll write a program that can test correctness of location of various styles of brackets in a source code. First, we need to define types for brackets: they can be opened and closed; they can have different styles.
+Let's try our approach on the real world tasks - we'll write a program that can test the correctness of location of various styles of brackets in a source code. First, we need to define types for brackets: they can be opened and closed; they can have different styles.
 
 ```haskell
 data Shape = Opened | Closed
@@ -255,4 +255,4 @@ Suddenly, that trick doesn't work with the mother of monads - continuations. Jus
 
 I've created a tiny [library](https://github.com/iokasimov/joint) with examples, if you have a bundle of effects in your pet-projects - you can try it. And if you have some troubles with it - email me. Also, there is full [example's code with brackets](https://gist.github.com/iokasimov/e149804f8bf4cb807a1ff6c2ae6a383a).
 
-I must say many thanks to [Joel Wikstrom](https://twitter.com/WikstromJoel) who had helped me a lot - his notes and advices made this blog post happen.
+I must say many thanks to [Joel Wikstrom](https://twitter.com/WikstromJoel) who had helped me a lot - his notes and advice made this blog post happen.
