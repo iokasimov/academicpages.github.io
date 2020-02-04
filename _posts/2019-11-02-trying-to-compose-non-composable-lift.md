@@ -51,7 +51,7 @@ let xz = x *> z :: State _ :> Either _ :> Maybe _ :> Reader := _
 Effects adaptation
 --------------------------------------------------------------------------------
 
-Adaptation means that some effects can be replaced by more powerful effects. For example, `Reader` and `Writer` effects can bu used in `State` because `State` can read and write, so it can modify stored value:
+Adaptation means that some effects can be replaced by more powerful effects. For example, `Reader` and `Writer` effects can be used in `State` because `State` can read and write, so it can modify stored value:
 
 ```haskell
 lift put :: Accumulated _ t => t _
