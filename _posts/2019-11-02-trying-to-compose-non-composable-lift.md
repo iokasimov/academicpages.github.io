@@ -68,7 +68,7 @@ State s ~ (->) s :. (,) s
 
 In case of `Reader` we just lift `->` (arrow) functor, in case of `Writer` - `,` (tuple):
 
-```haskel
+```haskell
 Reader s ~ (->) s
 Writer s ~ (,) s
 ```
@@ -85,6 +85,8 @@ Simple real world example
 --------------------------------------------------------------------------------
 
 Let's imagine that we need to make an HTTP request, it's `IO`, that can throw `HttpException` :
+
+![IO - salesman](http://iokasimov.github.io/images/io_salesman.png)
 
 ```haskell
 import qualified "wreq" Network.Wreq as HTTP
