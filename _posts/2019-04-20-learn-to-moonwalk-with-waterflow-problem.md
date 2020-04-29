@@ -59,7 +59,7 @@ Okay, now we need to compute the right peak heights for all walls, but this time
 Backwards applicative and Reverse traversable functors
 --------------------------------------------------------------------------------
 
-There is an interesting type called `Backwords` that let you run applicative effects in reverse order:
+There is an interesting type called `Backwards` that let you run applicative effects in reverse order:
 
 ```haskell
 newtype Backwards f a = Backwards { forwards :: f a }
