@@ -76,7 +76,7 @@ bank :: (Functor t, Stateful (River a) t) => t [a]
 bank = view (source direction) <$> current
 ```
 
-How to choose the next character to move? We take the list of character with `bank` expression, add option with empty boat:  `\xs -> Nothing : (Just <$> xs)`. For every candidate (empty boat is candidate too) we check that on source bank we don’t leave characters that can eat each other:
+How to choose the next character to move? We take the list of character with `bank` expression and add option with empty boat:  `\xs -> Nothing : (Just <$> xs)`. For every candidate (empty boat is candidate too) we check that we don’t leave characters on source bank that could be eaten:
 
 ```haskell
 valid :: Maybe a -> Bool
@@ -86,8 +86,6 @@ valid (Just x) = and $ coexist <$> delete x xs <*> delete x xs
 coexist :: Survivable a => a -> a -> Bool
 coexist x y = survive x y == EQ
 ```
-
-И когда мы отфильтровали пространство выбора персонажей, поднимаем эффект множественности и возвращаем каждый элемент из этого пространства выбора:
 
 After filtering list of candidate, we `lift ` plurality effect and return every candidate as a value:
 
