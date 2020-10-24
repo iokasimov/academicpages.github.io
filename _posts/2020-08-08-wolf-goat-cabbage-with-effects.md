@@ -90,8 +90,8 @@ coexist x y = survive x y == EQ
 After filtering list of candidate, we `lift ` plurality effect and return every candidate as a value:
 
 ```haskell
-	next :: (Survivable a, Iterable t) => [a] -> t (Maybe a)
-	next xs = lift $ filter valid $ Nothing : (Just <$> xs)
+next :: (Survivable a, Iterable t) => [a] -> t (Maybe a)
+next xs = lift $ filter valid $ Nothing : (Just <$> xs)
 ```
 
 Okay, there is only one action left - actual transportation. We delete picked character from source bank and add it to target bank:  
