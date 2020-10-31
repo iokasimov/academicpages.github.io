@@ -11,7 +11,7 @@ tags:
   - lens
 ---
 
-In this article I’m going to show you what are adjoint functors about through real programming examples. We will build a lot of useful staff just with two simplest constructions: an arrow and a comma.
+In this article I’m going to show you what are adjoint functors about through real programming examples. We will build a lot of useful stuff just with two simplest constructions: an arrow and a comma.
 
 ![](http://iokasimov.github.io/images/zwqr80uhebtcuamsndizfraxhru.png)
 
@@ -20,11 +20,11 @@ I will deliberately avoid full definitions, axioms and proofs of category theory
 # Functions and tuples
 Let’s start from simple constructions that should exist in all general-purpose languages.
 
-What is a function? It’s a map between two sets, it’s a code which takes some argument *s* and returns some result *a*: *s -> a*.
+What is a function? It’s a map between two sets, it’s a code which takes some argument **s** and returns some result **a**: **s -> a**.
 
 ![](http://iokasimov.github.io/images/qxaxqp3znnibq8pitzvc3xwqjxk.png)
 
-What is a tuple? It’s elementary product of any two types *s* and *a*: *(s, a)*.
+What is a tuple? It’s elementary product of any two types **s** and **a**: **(s, a)**.
 
 ![](http://iokasimov.github.io/images/qzgifnlnr_gwt02ldlym5zrd5gq.png)
 
@@ -33,7 +33,7 @@ We get use to look at these two constructions as infix expressions. What if we c
 ![](http://iokasimov.github.io/images/pqlrbhdaxtdbz0bvxp54ebyl4t4.png)
 ![](http://iokasimov.github.io/images/fpny8njlpfnss73h_qwxiwuipos.png)
 
-Now we see that they are pretty similar! They take two arguments in the same order. But there is a difference: first argument of arrow (*s*) is in negative position, but first argument of tuple (*s*) is in positive (which makes an arrow *profunctor* and a comma *bifunctor*) . So let’s just ignore those two arguments and just fix them:
+Now we see that they are pretty similar! They take two arguments in the same order. But there is a difference: first argument of arrow (**s**) is in negative position, but first argument of tuple (**s**) is in positive (which makes an arrow **profunctor** and a comma **bifunctor**) . So let’s just ignore those two arguments and just fix them:
 
 ![](http://iokasimov.github.io/images/zdckeyvi125yn2ycwmtbztvisgy.png)
 
@@ -56,7 +56,7 @@ Functors are maps between categories:
 ![](http://iokasimov.github.io/images/25796b599438eb261fa1e9546fc78507.jpg)
 _«What is a Functor? Definition and Examples, Part 1» © Math3ma/_
 
-Adjunction is a special relation between functors. That it, if we can build two such commutative diagrams and all equations hold, then we can say that F and G are adjoint functors  (*F ⊣ G*):
+Adjunction is a special relation between functors. That it, if we can build two such commutative diagrams and all equations hold, then we can say that F and G are adjoint functors  (**F ⊣ G**):
 
 ![](http://iokasimov.github.io/images/724095e1f8d2d8797c295b3ed52e9f33.jpg)
 _«What is an Adjunction? Part 2 (Definition)» © Math3ma_
@@ -72,7 +72,7 @@ In case of a tuple, first argument is fixed therefore we can change only second 
 
 ![](http://iokasimov.github.io/images/os9obc76wesm2iv_edn9nnwnds0.png)
 
-In case of a function, `fmap` definition is just a function composition:
+In case of a function, **fmap** definition is just a function composition:
 
 ![](http://iokasimov.github.io/images/xc42x5qucuofsgwxndsxonwoawk.png)
 
@@ -80,12 +80,12 @@ Now it’s time to define adjunction between tuple and function and … it looks
 
 ![](http://iokasimov.github.io/images/17mehpicsggrd3wpyq_ht83fhry.png)
 
-So instead of these methods, let’s define something simpler - `unit` and `counit`. Do you remember those two commutative diagrams? Morphism *ε* corresponds to `counit` and morphism `η` corresponds to `unit`:
+So instead of these methods, let’s define something simpler - **unit** and **counit**. Do you remember those two commutative diagrams? Morphism **ε** corresponds to **counit** and morphism **η** corresponds to **unit**:
 
 ![](http://iokasimov.github.io/images/aigd2fgsbwpakxtz5ia-gkuaugi.jpg)
 _«What is an Adjunction? Part 2 (Definition)» © Math3ma_
 
-Let’s start from `counit`:
+Let’s start from **counit**:
 ```haskell
 ε :: f (g a) -> a
 -- Replace f and g with comma and arrow:
@@ -96,7 +96,7 @@ Let’s start from `counit`:
 ε :: (s, s -> a) -> a
 ```
 
-What we got here? `counit` for a comma and an arrow takes some argument *s* and function from  *s* to *a*. Looks like function application!
+What we got here? **counit** for a comma and an arrow takes some argument **s** and function from  **s** to **a**. Looks like function application!
 ```haskell
 ε :: (s, s -> a) -> a
 ε (x, f) = f x
@@ -113,7 +113,7 @@ Now it’s turn for `unit`:
 η :: a -> s -> (s, a)
 ```
 
-So `unit` takes *s* and *a* as arguments and build a tuple from them:
+So `unit` takes **s** and **a** as arguments and build a tuple from them:
 
 ```haskell
 η :: a -> s -> (s, a)
@@ -124,21 +124,21 @@ Now let’s go back to those scary methods:
 
 ![](http://iokasimov.github.io/images/ollwlgpudwt1rojw8m6vynirkfc.png)
 
-And implement left adjunction and right adjunction:
+And implement **left adjunction** and **right adjunction**:
 
 ![](http://iokasimov.github.io/images/bdf_bu7baurhrn44suif-1fnrum.png)
 
 Well, it didn’t get any easier. Sometimes, trying to understand something we have no choice except looking at this very carefully. We can do it now.
 
-Left adjunction: takes a function which takes a tuple  (*(s, a) -> b* ) and as result we have a function which takes *a* and *s* as arguments:
+**Left adjunction**: takes a function which takes a tuple  (**(s, a) -> b** ) and as result we have a function which takes **a** and **s** as arguments:
 
 ![](http://iokasimov.github.io/images/n-0nrufn_ozxc658l9o5enbeog8.png)
 
-Right adjunction: takes a function which return another function (*a -> (s -> b)*)  and as result we have a function with takes a tuple *(s, a)*:
+**Right adjunction**: takes a function which return another function (**a -> (s -> b)**)  and as result we have a function with takes a tuple **(s, a)**:
 
 ![](http://iokasimov.github.io/images/lc0ofonefnbxncp9gcy24tj2wve.png)
 
-Does this remind you of anything? That is  *currying*!
+Does this remind you of anything? That is **currying**!
 ```haskell
 curry :: ((a, s) -> b) -> a -> s -> b
 uncurry :: (a -> s -> b) -> (a, s) -> b
@@ -148,30 +148,30 @@ _The only difference is reverse order of arguments_
 So if you are asked one day ”what is currying” you can answer: ”This is just left adjunction of tuple functor and function functor, what’s the problem?”
 
 # Functor combinatorics
-There is an idea: let’s try to create simple functor composition of an arrow and a tuple. Simple functor composition is just a wrapping one functor into another one, they are polymorphic over type argument anyway. We can do it in two ways:
+There is an idea: let’s try to create simple **functor compositio**n of an arrow and a tuple. Simple **functor composition** is just a wrapping one functor into another one, they are polymorphic over type argument anyway. We can do it in two ways:
 
 ![](http://iokasimov.github.io/images/e7qcjoneatbms4fgrdafgs1g7ge.png)
 
-Substitute *f* and *g* with comma and arrow (with fixed arguments) accordingly:
+Substitute **f** and **g** with comma and arrow (with fixed arguments) accordingly:
 
 ![](http://iokasimov.github.io/images/wfwqzbn_r38kvmw6kijluv_oosk.png)
 
-Looks familiar, right? That it, with first combination we get *Store* command and with reverse combination we get *State* monad:
+Looks familiar, right? That it, with first combination we get **Store** comonad and with reverse combination we get **State** monad:
 
 ![](http://iokasimov.github.io/images/4ioxqbqhwxhn3nvta6_xzdcl4s8.png)
 
 ![](http://iokasimov.github.io/images/jaa7luz2yre4mzshbgkzcpr51ji.png)
 
-And they are adjoint functors also!
+And they are **adjoint functors** also!
 
 ![](http://iokasimov.github.io/images/n4vxsmkaypec_3kmmtopibzzo9y.png)
 
 # State and Store
-What do we think about when we create program which depends not only on arguments but on some state? Maybe we think about a box where we can put and get something from. Or in case of finite automate, we are focusing on state transitions:
+What do we think about when we create program which depends not only on arguments but on some state? Maybe we think about a box where we can put and get something from. Or in case of finite-state machines, we are focusing on state transitions:
 
 ![](http://iokasimov.github.io/images/itnexbfdvl2idx0ljpmjayohina.jpg)
 
-Well, for transitions we have errors and for a box we have a tuple:
+Well, for transitions we have arrows and for a box we have tuple:
 
 ```haskell
 type State s a = s -> (s, a)
@@ -184,8 +184,9 @@ get s = (s, s)
 
 put :: s -> State s ()
 put new _ = (new, ())
+```
 
-Store is something completely different. We store some source *s* and an instruction how to get *a* from that *s*:
+**Store** is something completely different. We store some source **s** and an instruction how to get **a** from that **s**:
 
 ```haskell
 type Store s a = (s, s -> a)
@@ -207,7 +208,7 @@ Sometimes we have to work with deeply nested data structures, focusing on some d
 
 ![](http://iokasimov.github.io/images/0r1mjuhncre484omz1eixykzj84.png)
 
-And we can construct this magnifying glass with Store command:
+And we can construct this magnifying glass with **Store** comonad:
 
 ![](http://iokasimov.github.io/images/hyy2nrtwo3o3sfon62-nwbm4jj8.png)
 
@@ -243,20 +244,23 @@ hired :: State (Maybe Job) City
 relocate :: City -> State Address ()
 ```
 
-So we have effectrful *hired* expression which  operates on the state of the current job (*Maybe Job*). And there is expression *relocate* with takes city as an argument and depends on that city changes *Address* state. These both effectful expressions operate on some state but we can’t use them together because type of state is different.
+So we have effectrful **hired** expression which  operates on the state of the current job (**Maybe Job**). And there is expression **relocate** with takes city as an argument and depends on that city changes **Address** state. These both effectful expressions operate on some state but we can’t use them together because type of state is different.
 
-But there is a brilliant *zoom* function that let use change type of state if we have according lens (it’s pretty similar to *lift* function in monad transformers).
+But there is a brilliant **zoom** function that let use change type of state if we have according lens (it’s pretty similar to **lift** function in monad transformers).
 ```haskell
 zoom :: Lens bg ls -> State ls a -> State bg a
+```
 
 We take lenses that we already have and apply them to according expressions:
+
 ```haskell
 zoom job hired :: State Person City
 zoom address (relocate _) :: State Person ()
 ```
 
-… and bind them monadically! Now we have an access to *Person* state in this combined expression:
+… and bind them monadically! Now we have an access to **Person** state in this combined expression:
 ```haskell
 zoom job hired >>= zoom address . relocate
 ```
+
 You can find those definition sources  [here](https://github.com/iokasimov/joint) .
