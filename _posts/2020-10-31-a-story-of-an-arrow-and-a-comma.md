@@ -39,7 +39,7 @@ Now we see that they are pretty similar! They take two arguments in the same ord
 
 ![](http://iokasimov.github.io/images/wegmqssuvduiuo_pqj-lk9iqhre.png)
 
-Now they are covariant functors and, also they are in such an interesting relation as adjunction!
+Now they are covariant functors and, also they are in such an interesting relation as **adjunction**!
 
 ![](http://iokasimov.github.io/images/rm9ne9die4hnny0_eupyq8yrpoe.png)
 
@@ -56,7 +56,7 @@ Functors are maps between categories:
 ![](http://iokasimov.github.io/images/25796b599438eb261fa1e9546fc78507.jpg)
 _«What is a Functor? Definition and Examples, Part 1» © Math3ma/_
 
-Adjunction is a special relation between functors. That it, if we can build two such commutative diagrams and all equations hold, then we can say that F and G are adjoint functors  (**F ⊣ G**):
+**Adjunction** is a special relation between **functors**. That it, if we can build two such commutative diagrams and all equations hold, then we can say that F and G are **adjoint functors** (**F ⊣ G**):
 
 ![](http://iokasimov.github.io/images/724095e1f8d2d8797c295b3ed52e9f33.jpg)
 _«What is an Adjunction? Part 2 (Definition)» © Math3ma_
@@ -64,7 +64,7 @@ _«What is an Adjunction? Part 2 (Definition)» © Math3ma_
 Maybe it looks pretty complicated now but as soon as we get used these concepts on practice we will make sure that this is not so.
 
 # Adjunction of a comma and an arrow
-This is how Functor definition usually looks like in languages with parametric polymorphism:
+This is how **Functor** definition usually looks like in languages with parametric polymorphism:
 
 ![](http://iokasimov.github.io/images/ytoxdiirpssum0wxiakj7bhwyzs.png)
 
@@ -76,7 +76,7 @@ In case of a function, **fmap** definition is just a function composition:
 
 ![](http://iokasimov.github.io/images/xc42x5qucuofsgwxndsxonwoawk.png)
 
-Now it’s time to define adjunction between tuple and function and … it looks pretty complicated.
+Now it’s time to define **adjunction** between tuple and function and … it looks pretty complicated.
 
 ![](http://iokasimov.github.io/images/17mehpicsggrd3wpyq_ht83fhry.png)
 
@@ -244,9 +244,9 @@ hired :: State (Maybe Job) City
 relocate :: City -> State Address ()
 ```
 
-So we have effectrful **hired** expression which  operates on the state of the current job (**Maybe Job**). And there is expression **relocate** with takes city as an argument and depends on that city changes **Address** state. These both effectful expressions operate on some state but we can’t use them together because type of state is different.
+So we have effectful **hired** expression which operates on the state of the current job (**Maybe Job**). And there is expression **relocate** wich takes city as an argument and depends on that city changes **Address** state. These both effectful expressions operate on some state but we can’t use them together because type of state is different.
 
-But there is a brilliant **zoom** function that let use change type of state if we have according lens (it’s pretty similar to **lift** function in monad transformers).
+But there is a brilliant **zoom** function that let us change type of state if we have according lens (it’s pretty similar to **lift** function in **monad transformers**).
 ```haskell
 zoom :: Lens bg ls -> State ls a -> State bg a
 ```
