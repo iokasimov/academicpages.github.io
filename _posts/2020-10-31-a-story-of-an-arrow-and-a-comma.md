@@ -49,17 +49,17 @@ But let’s take one thing at a time.
 Category is a set of objects and arrows:
 
 ![](http://iokasimov.github.io/images/bb38146cfcad387787dc419b9f0c27f0.jpg)
-/«What is a Category? Definition and Examples» © Math3ma/
+_«What is a Category? Definition and Examples» © Math3ma_
 
 Functors are maps between categories:
 
 ![](http://iokasimov.github.io/images/25796b599438eb261fa1e9546fc78507.jpg)
-/«What is a Functor? Definition and Examples, Part 1» © Math3ma/
+_«What is a Functor? Definition and Examples, Part 1» © Math3ma/_
 
 Adjunction is a special relation between functors. That it, if we can build two such commutative diagrams and all equations hold, then we can say that F and G are adjoint functors  (*F ⊣ G*):
 
 ![](http://iokasimov.github.io/images/724095e1f8d2d8797c295b3ed52e9f33.jpg)
-/«What is an Adjunction? Part 2 (Definition)» © Math3ma/
+_«What is an Adjunction? Part 2 (Definition)» © Math3ma_
 
 Maybe it looks pretty complicated now but as soon as we get used these concepts on practice we will make sure that this is not so.
 
@@ -82,8 +82,8 @@ Now it’s time to define adjunction between tuple and function and … it looks
 
 So instead of these methods, let’s define something simpler - `unit` and `counit`. Do you remember those two commutative diagrams? Morphism *ε* corresponds to `counit` and morphism `η` corresponds to `unit`:
 
-![](http://iokasimov.github.io/images/aigd2fgsbwpakxtz5ia-gkuaugi.jpeg)
-/«What is an Adjunction? Part 2 (Definition)» © Math3ma/
+![](http://iokasimov.github.io/images/aigd2fgsbwpakxtz5ia-gkuaugi.jpg)
+_«What is an Adjunction? Part 2 (Definition)» © Math3ma_
 
 Let’s start from `counit`:
 ```haskell
@@ -169,7 +169,7 @@ And they are adjoint functors also!
 # State and Store
 What do we think about when we create program which depends not only on arguments but on some state? Maybe we think about a box where we can put and get something from. Or in case of finite automate, we are focusing on state transitions:
 
-![](http://iokasimov.github.io/images/itnexbfdvl2idx0ljpmjayohina.jpeg)
+![](http://iokasimov.github.io/images/itnexbfdvl2idx0ljpmjayohina.jpg)
 
 Well, for transitions we have errors and for a box we have a tuple:
 
@@ -198,6 +198,7 @@ peek s (_, f) = f s
 
 retrofit :: (s -> s) -> Store s a -> Store s a
 retrofit g (s, f) = (g s, f)
+```
 
 Where can it be used?
 
