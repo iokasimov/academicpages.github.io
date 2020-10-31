@@ -35,30 +35,30 @@ We get use to look at these two constructions as infix expressions. What if we c
 
 Now we see that they are pretty similar! They take two arguments in the same order. But there is a difference: first argument of arrow (*s*) is in negative position, but first argument of tuple (*s*) is in positive (which makes an arrow *profunctor* and a comma *bifunctor*) . So let’s just ignore those two arguments and just fix them:
 
-![](http://iokasimov.github.io/images/zdckeyvi125yn2ycwmtbztvisgy.png]
+![](http://iokasimov.github.io/images/zdckeyvi125yn2ycwmtbztvisgy.png)
 
-![](http://iokasimov.github.io/images/wegmqssuvduiuo_pqj-lk9iqhre.png]
+![](http://iokasimov.github.io/images/wegmqssuvduiuo_pqj-lk9iqhre.png)
 
 Now they are covariant functors and, also they are in such an interesting relation as adjunction!
 
-![](http://iokasimov.github.io/images/rm9ne9die4hnny0_eupyq8yrpoe.png]
+![](http://iokasimov.github.io/images/rm9ne9die4hnny0_eupyq8yrpoe.png)
 
 But let’s take one thing at a time.
 
 # Categories, functors, adjunctions
 Category is a set of objects and arrows:
 
-![](http://iokasimov.github.io/images/bb38146cfcad387787dc419b9f0c27f0.jpg]
+![](http://iokasimov.github.io/images/bb38146cfcad387787dc419b9f0c27f0.jpg)
 /«What is a Category? Definition and Examples» © Math3ma/
 
 Functors are maps between categories:
 
-![](http://iokasimov.github.io/images/25796b599438eb261fa1e9546fc78507.jpg]
+![](http://iokasimov.github.io/images/25796b599438eb261fa1e9546fc78507.jpg)
 /«What is a Functor? Definition and Examples, Part 1» © Math3ma/
 
 Adjunction is a special relation between functors. That it, if we can build two such commutative diagrams and all equations hold, then we can say that F and G are adjoint functors  (*F ⊣ G*):
 
-![](http://iokasimov.github.io/images/724095e1f8d2d8797c295b3ed52e9f33.jpg]
+![](http://iokasimov.github.io/images/724095e1f8d2d8797c295b3ed52e9f33.jpg)
 /«What is an Adjunction? Part 2 (Definition)» © Math3ma/
 
 Maybe it looks pretty complicated now but as soon as we get used these concepts on practice we will make sure that this is not so.
@@ -66,11 +66,11 @@ Maybe it looks pretty complicated now but as soon as we get used these concepts 
 # Adjunction of a comma and an arrow
 This is how Functor definition usually looks like in languages with parametric polymorphism:
 
-![](http://iokasimov.github.io/images/ytoxdiirpssum0wxiakj7bhwyzs.png]
+![](http://iokasimov.github.io/images/ytoxdiirpssum0wxiakj7bhwyzs.png)
 
 In case of a tuple, first argument is fixed therefore we can change only second one with function:
 
-![](http://iokasimov.github.io/images/os9obc76wesm2iv_edn9nnwnds0.png]
+![](http://iokasimov.github.io/images/os9obc76wesm2iv_edn9nnwnds0.png)
 
 In case of a function, `fmap` definition is just a function composition:
 
