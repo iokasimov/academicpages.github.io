@@ -1,5 +1,3 @@
-# Trying to compose non-composable: monads
-
 ---
 title: 'Trying to compose non-composable: monads'
 date: 2021-01-05
@@ -16,18 +14,18 @@ tags:
   - store
 ---
 
-How many times have you heard “monads do not compose”? I’ve spent a lot of time trying to contradict this statement. But just like in match, if you want to understand something sometimes you have to change your point of view.
+How many times have you heard “monads do not compose”? I’ve spent a lot of time trying to contradict this statement. But just like in math, if you want to understand something sometimes you have to change your point of view.
 
-It’s recommended to read first and second parts of this series.
+It’s recommended to read the first and the second parts of this series.
 
-When we want to unite two effects into one (into transformer) we have two options: wrap left one into a right or wrap right one into a left. These two options defines with `TU` and `UT` schemes.
+When we want to unite two effects into one (into transformer) we have two options: wrap a left one into a right or wrap a right one into a left. These two options define with `TU` and `UT` schemes.
 
 ```haskell
 newtype TU t u a = TU (t :. u := a)
 newtype UT t u a = UT (u :. t := a)
 ```
 
-As we already know from previous parts for computations with read-only environment (`Reader`) it’s enough to have direct composition, but for error handling effects (`Maybe` and `Either`)  reverse composition  `UT` fits.
+As we already know from previous parts for computations with a read-only environment (`Reader`) it’s enough to have direct composition, but for error handling effects (`Maybe` and `Either`) reverse composition `UT` fits.
 
 ```haskell
 type instance Schema (Reader e) = TU ((->) e)
@@ -35,7 +33,7 @@ type instance Schema (Either e) = UT (Either e)
 type instance Schema Maybe = UT Maybe
 ```
 
-Covariant and Applicative functor instances looks pretty obvious because it’s still functor and as we know functors compose.
+Covariant and Applicative functor instances look pretty obvious because it’s still functor and as we know functors compose.
 
 ```haskell
 (<$$>) :: (Functor t, Functor u) => (a -> b) -> t :. u := a -> t :. u := b
@@ -86,7 +84,7 @@ instance Monad u => Monad (UT Maybe u) where
         Just r -> run $ f r
 ```
 
-In case of error handling (`Maybe` and `Either`) we can see the same behaviour: if invariant contains parameter `a`  then computation goes on. It’s incredibly similar to `Traversable`! This is how it looks like:
+In case of error handling (`Maybe` and `Either`) we can see the same behavior: if invariant contains parameter `a`  then computation goes on. It’s incredibly similar to `Traversable`! This is how it looks like:
 
 ```haskell
 class (Functor t, Foldable t) => Traversable t where
@@ -108,9 +106,9 @@ instance (Traversable t, Monad t, Monad u) => Monad (UT t u) where
     UT x >>= f = UT $ x >>= \i -> join <$> traverse (run . f) i
 ```
 
-It works! It means that we can bind transformers with known `Traversable` effect.
+It works! It means that we can bind transformers with a known `Traversable` effect.
 
-But what we should do with `TU` which used for `Reader`? I don’t know yet. But we can try something - we take opposite class for `Traversable` - `Distributive`. Such a happy day - there is an instance for `Reader` (for its inner type `(->) e` to be precise)!
+But what we should do with `TU` which used for `Reader`? I don’t know yet. But we can try something - we take the opposite class for `Traversable` - `Distributive`. Such a happy day - there is an instance for `Reader` (for its inner type `(->) e` to be precise)!
 
 ```haskell
 class Functor g => Distributive g where
@@ -120,7 +118,7 @@ instance Distributive ((->) e) where
     collect f q e = flip f e <$> q
 ```
 
-But why exactly these classes and why they’re opposite to each other? In order to understand it we can take a closer look on their modificated methods where we replace `a -> t b` functions with `id`.
+But why exactly these classes and why they’re opposite each other? In order to understand it we can take a closer look at their modified methods where we replace `a -> t b` functions with `id`.
 
 ```haskell
 sequence :: (Traversable t, Applicative u) => t (u a) -> u (t a)
@@ -130,7 +128,7 @@ distribute :: (Distributive t, Functor u) => u (t a) -> t (u a)
 distribute = collect id
 ```
 
-That’s it! We can see that these methods let us change order of effects. If `Traversable` worked for reverse composition, could `Distributive` to be fitted for direct one?
+That’s it! We can see that these methods let us change the order of effects. If `Traversable` worked for reverse composition, could `Distributive` to be fitted for direct one?
 
 ```haskell
 instance (Monad t, Distributive t, Monad u) => Monad (TU t u) where
@@ -154,14 +152,14 @@ type instance Schema (State s) = TUT ((->) s) ((,) s)
 type instance Schema (Store s) = TUT ((,) s) ((->) s)
 ```
 
-Looks pretty complicated, right? Composition of covariant `Functor`’s still works, but not for `Applicative`’s - we can’t just map effectful function to composition of an arrow and a comma because they’re knitted. In other words, tuple content is dependent of argument of function and we have to make function application to get updated value.
+Looks pretty complicated, right? The Composition of covariant `Functor`’s still works, but not for `Applicative`’s - we can’t just map effectful function to the composition of an arrow and a comma because they’re knitted. In other words, tuple content is dependent of an argument of function and we have to make a function application to get an updated value.
 
 ```haskell
 instance (Functor t, Functor t', Functor u) => Functor (TUT t t' u) where
     fmap f (TUT x) = TUT $ f <$$$> x
 ```
 
-So, arrow (`(->) s`) is `Distributive` and comma (`(,) s`) is `Traversable`… But there is a more tighten connection between these two types called `Adjunction` (you can read more about it [here](https://iokasimov.github.io/posts/2020/10/arrow-and-comma)).
+So, the arrow (`(->) s`) is `Distributive` and the comma (`(,) s`) is `Traversable`… But there is a more tight connection between these two types called `Adjunction` (you can read more about it [here](https://iokasimov.github.io/posts/2020/10/arrow-and-comma)).
 
 ```haskell
 class Functor t => Adjunction t u where
@@ -185,14 +183,14 @@ instance Adjunction ((,) s) ((->) s) where
 
 Let’s try to deal with `State` effect first. Wrapping into an effect is completely identical to `unit` method and we use right adjoint to bind two effects in `Monad` chain.
 
-```
+```haskell
 instance Monad (State s) where
     State x >>= f = State $ rightAdjunct (run . f) <$> x
     /— Or: State x >>= f = State $ counit <$> ((run . f) <$$> x)/
     return = State . unit
 ```
 
-But what about transformer? We have an unknown effect between two ones. To wrap a value into a transformer we need left adjunction and for binding we need right adjunction:
+But what about transformers? We have an unknown effect between the two ones. To wrap a value into a transformer we need left adjunction and for binding, we need right adjunction:
 
 ```haskell
 instance (Adjunction t' t, Monad u) => Monad (TUT t t' u) where
@@ -208,7 +206,7 @@ instance (Adjunction t' t, Comonad u) => Comonad (TUT t' t := u) where
     extract = rightAdjunct extract . run
 ```
 
-And what we need to do to `lift` unknown effect up to transformer layer? We can use `adjunctions` here too! Moreover, instances for `Monad` and `Comonad` transformers are shocking symmetric…
+And what we need to do to `lift` an unknown effect up to the transformer layer? We can use `adjunctions` here too! Moreover, instances for `Monad` and `Comonad` transformers are shocking symmetric…
 
 ```haskell
 instance (Adjunction t' t, Distributive t) => MonadTrans (TUT t t') where
@@ -226,4 +224,4 @@ We can draw some conclusions from what has been said:
 
 It turns out that some monads can unite in transformers based on the properties of known effects.
 
-You can find definitions source [here](https://github.com/iokasimov/joint) .  Also you can take a look at examples of application described effect system [here](https://github.com/iokasimov/experiments/tree/master/Problems/joint) .
+You can find the source of the definitions [here](https://github.com/iokasimov/joint). Also, you can take a look at examples of application described effect system [here](https://github.com/iokasimov/experiments/tree/master/Problems/joint).
