@@ -16,7 +16,7 @@ tags:
 
 How many times have you heard “monads do not compose”? I’ve spent a lot of time trying to contradict this statement. But just like in math, if you want to understand something sometimes you have to change your point of view.
 
-It’s recommended to read the first and the second parts of this series.
+It’s recommended to read previous parts of this series: [part 1](https://iokasimov.github.io/posts/2019/11/joint), [part 2](https://iokasimov.github.io/posts/2020/02/joint).
 
 When we want to unite two effects into one (into transformer) we have two options: wrap a left one into a right or wrap a right one into a left. These two options define with `TU` and `UT` schemes.
 
